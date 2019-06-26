@@ -245,15 +245,9 @@ def segment_conll(args):
         for batch in data_batches:
             batch_pred_segs = model.segment(batch)
             for sample, pred_segs in zip(batch['raw_data'], batch_pred_segs):
+                # pred_segs: list wit cut point
                 print(sample)
                 print(pred_segs)
-                exit()
-                one_edu_words = []
-                for word_idx, word in enumerate(sample['words']):
-                    if word_idx in pred_segs:
-                        edus.append(' '.join(one_edu_words))
-                        one_edu_words = []
-                    one_edu_words.append(word)
-                if one_edu_words:
-                    edus.append(' '.join(one_edu_words))
+                x = [ sample[seg] for seg in pred_segs]
 
+                print(x)
