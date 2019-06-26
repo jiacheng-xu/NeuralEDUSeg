@@ -173,3 +173,69 @@ def segment(args):
         with open(save_path, 'w') as fout:
             for edu in edus:
                 fout.write(edu + '\n')
+
+
+def segment_conll(args):
+    logger = logging.getLogger('SegEDU')
+    rst_data = RSTData()
+    logger.info('Loading vocab...')
+    with open(args.word_vocab_path, 'rb') as fin:
+        word_vocab = pickle.load(fin)
+        logger.info('Word vocab size: {}'.format(word_vocab.size()))
+    rst_data.word_vocab = word_vocab
+
+    logger.info('Loading the model...')
+    model = AttnSegModel(args, word_vocab)
+    model.restore('best', args.model_dir)
+    if model.use_ema:
+        model.sess.run(model.ema_backup_op)
+        model.sess.run(model.ema_assign_op)
+
+    # spacy_nlp = spacy.load('en', disable=['parser', 'ner', 'textcat'])
+
+    files = os.listdir(args.input_conll_path)
+    files = [f for f in files if f.endswith('conll')]
+    logger.info('Segmenting {} files ...'.format(len(files)))
+
+    for f in files:
+        with open(os.path.join(args.input_conll_path, f), 'r') as fin:
+            lines = fin.read().splitlines()
+            lines = [l for l in lines if len(l) > 1]
+        samples = []
+        sentences = []
+        tmp = []
+        cur_sent = 0
+        for l in lines:
+            chunks = l.split("\t")
+            sent_idx = int(chunks[0])
+            if sent_idx == cur_sent:
+                tmp.append(chunks[2])
+            else:
+                sentences.append(tmp)
+                tmp = []
+                cur_sent = sent_idx
+                tmp.append(chunks[2])
+        if tmp != []:
+            sentences.append(tmp)
+        for sent in sentences:
+            samples.append({'words': sent,
+                            'edu_seg_indices': []})
+
+        rst_data.test_samples = samples
+        data_batches = rst_data.gen_mini_batches(args.batch_size, test=True, shuffle=False)
+        edus = []
+        for batch in data_batches:
+            batch_pred_segs = model.segment(batch)
+            for sample, pred_segs in zip(batch['raw_data'], batch_pred_segs):
+                print(sample)
+                print(pred_segs)
+                exit()
+                one_edu_words = []
+                for word_idx, word in enumerate(sample['words']):
+                    if word_idx in pred_segs:
+                        edus.append(' '.join(one_edu_words))
+                        one_edu_words = []
+                    one_edu_words.append(word)
+                if one_edu_words:
+                    edus.append(' '.join(one_edu_words))
+

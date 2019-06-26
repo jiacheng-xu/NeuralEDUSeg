@@ -9,7 +9,7 @@ import random
 import numpy as np
 import tensorflow as tf
 from config import parse_args
-from api import prepare, train, evaluate, segment
+from api import prepare, train, evaluate, segment, segment_conll
 
 
 if __name__ == '__main__':
@@ -45,4 +45,4 @@ if __name__ == '__main__':
     if args.evaluate:
         evaluate(args)
     if args.segment:
-        segment(args)
+        segment_conll(args)
