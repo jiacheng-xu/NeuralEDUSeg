@@ -32,7 +32,7 @@ if __name__ == '__main__':
     logger.info('Running with args : {}'.format(args))
 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 
     random.seed(args.seed)
     np.random.seed(args.seed)
