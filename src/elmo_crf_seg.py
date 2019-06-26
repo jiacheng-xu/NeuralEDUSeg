@@ -6,14 +6,14 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.contrib as tc
 from lstm_crf_seg import LSTMCRFSegModel
-
+from src.lstm_crf_seg import LSTMCRFSegModel
 
 class ELMOCRFSegModel(LSTMCRFSegModel):
 
     def __init__(self, args, word_vocab):
-        super().__init__(args, word_vocab)
 
         # import ElmoEmbedder here so that the cuda_visible_divices can work
+        super().__init__(args, word_vocab)
         from allennlp.commands.elmo import ElmoEmbedder
         # self.elmo = ElmoEmbedder(cuda_device=args.gpu if args.gpu is not None else -1)
         self.elmo = ElmoEmbedder(cuda_device=args.gpu)
