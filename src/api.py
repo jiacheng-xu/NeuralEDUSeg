@@ -176,22 +176,25 @@ def segment(args):
 
 
 REMAP = {"-lrb-": "(",
-        "-LRB-": "(",
+         "-LRB-": "(",
          "-rrb-": ")",
-        "-RRB-": ")",
+         "-RRB-": ")",
          "-lcb-": "{",
-        "-LCB-": "{",
+         "-LCB-": "{",
          "-rcb-": "}",
-        "-RCB-": "}",
+         "-RCB-": "}",
          "-lsb-": "[",
          "-rsb-": "]",
          "``": '"', "''": '"'}
 
 import re
+
+
 def clean(x):
     return re.sub(
         r"-lrb-|-LRB-|-rrb-|-RRB-|-lcb-|-LCB-|-rcb-|-RCB-|-lsb-|-rsb-|``|''",
         lambda m: REMAP.get(m.group()), x)
+
 
 def segment_conll(args):
     logger = logging.getLogger('SegEDU')
@@ -213,41 +216,75 @@ def segment_conll(args):
 
     files = os.listdir(args.input_conll_path)
     files = [f for f in files if f.endswith('conll')]
-    logger.info('Segmenting {} files ...'.format(len(files)))
 
+    exist_files = os.listdir(args.output_merge_conll_path)
+    exist_files = [".".join(f.split(".")[:-1]) for f in exist_files if f.endswith('.merge')]
+    print("{} out of {} files processed".format(len(exist_files), len(files)))
+    todo_files = list(set(files) - set(exist_files))
+    logger.info('Segmenting {} files ...'.format(len(todo_files)))
+    files = todo_files
     for f in files:
+        print("running .. {}".format(f))
         with open(os.path.join(args.input_conll_path, f), 'r') as fin:
             lines = fin.read().splitlines()
-            lines = [l for l in lines if len(l) > 1]
+            # lines = [l for l in lines if len(l) > 1]
         samples = []
         sentences = []
+        line_tracker = []
         tmp = []
+
         cur_sent = 0
-        for l in lines:
+        line_anchor = []
+        for lidx, l in enumerate(lines):
+            if len(l) < 2:
+                continue
             chunks = l.split("\t")
             sent_idx = int(chunks[0])
             if sent_idx == cur_sent:
                 tmp.append(clean(chunks[2]))
+                line_anchor.append(lidx)
             else:
                 sentences.append(tmp)
+                line_tracker.append(line_anchor)
                 tmp = []
+                line_anchor = []
                 cur_sent = sent_idx
                 tmp.append(clean(chunks[2]))
+                line_anchor.append(lidx)
         if tmp != []:
             sentences.append(tmp)
-        for sent in sentences:
+
+        for sent, tmp_line in zip(sentences, line_tracker):
+            assert len(tmp_line) == len(sent)
             samples.append({'words': sent,
-                            'edu_seg_indices': []})
+                            'lines': tmp_line,
+                            'edu_seg_indices': []
+                            })
 
         rst_data.test_samples = samples
         data_batches = rst_data.gen_mini_batches(args.batch_size, test=True, shuffle=False)
-        edus = []
+        global_seg_cuts = []
         for batch in data_batches:
             batch_pred_segs = model.segment(batch)
+            # label segments with absolute line number
+
             for sample, pred_segs in zip(batch['raw_data'], batch_pred_segs):
                 # pred_segs: list wit cut point
-                print(sample)
-                print(pred_segs)
-                x = [ sample[seg] for seg in pred_segs]
+                _l = sample['lines']
+                global_seg_cuts.append(_l[0])
+                for _segs in pred_segs:
+                    global_seg_cuts.append(_segs + _l[0])
 
-                print(x)
+        annotated_lines = []
+        cur_seg_num = 0
+        for idx, old_line in enumerate(lines):
+            if idx in global_seg_cuts:
+                cur_seg_num += 1
+            if len(old_line) > 1:
+                annotated_lines.append("{}\t{}".format(old_line, cur_seg_num))
+            else:
+                annotated_lines.append(old_line)
+        with open(os.path.join(args.output_merge_conll_path, f + '.merge'), 'w') as fwt:
+            fwt.write("\n".join(annotated_lines))
+        # print(os.path.join(args.output_merge_conll_path, f))
+        # exit()

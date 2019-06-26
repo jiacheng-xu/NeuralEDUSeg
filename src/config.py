@@ -27,7 +27,7 @@ def parse_args():
     train_settings.add_argument('--max_grad_norm', type=float,
                                 default=5.0, help='clip gradients to this norm')
     train_settings.add_argument('--batch_size', type=int,
-                                default=32, help='batch size')
+                                default=128, help='batch size')
     train_settings.add_argument('--epochs', type=int,
                                 default=50, help='train epochs')
     train_settings.add_argument('--seed', type=int,
@@ -63,4 +63,5 @@ def parse_args():
                                help='the directory to save edu segmentation results')
     path_settings.add_argument('--log_path', help='the file to output log')
     path_settings.add_argument('--input_conll_path')
+    path_settings.add_argument('--output_merge_conll_path', default='segs')
     return parser.parse_args()
