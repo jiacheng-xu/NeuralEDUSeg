@@ -175,6 +175,24 @@ def segment(args):
                 fout.write(edu + '\n')
 
 
+REMAP = {"-lrb-": "(",
+        "-LRB-": "(",
+         "-rrb-": ")",
+        "-RRB-": ")",
+         "-lcb-": "{",
+        "-LCB-": "{",
+         "-rcb-": "}",
+        "-RCB-": "}",
+         "-lsb-": "[",
+         "-rsb-": "]",
+         "``": '"', "''": '"'}
+
+import re
+def clean(x):
+    return re.sub(
+        r"-lrb-|-rrb-|-lcb-|-rcb-|-lsb-|-rsb-|``|''",
+        lambda m: REMAP.get(m.group()), x)
+
 def segment_conll(args):
     logger = logging.getLogger('SegEDU')
     rst_data = RSTData()
@@ -209,12 +227,12 @@ def segment_conll(args):
             chunks = l.split("\t")
             sent_idx = int(chunks[0])
             if sent_idx == cur_sent:
-                tmp.append(chunks[2])
+                tmp.append(clean(chunks[2]))
             else:
                 sentences.append(tmp)
                 tmp = []
                 cur_sent = sent_idx
-                tmp.append(chunks[2])
+                tmp.append(clean(chunks[2]))
         if tmp != []:
             sentences.append(tmp)
         for sent in sentences:
