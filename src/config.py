@@ -62,4 +62,5 @@ def parse_args():
     path_settings.add_argument('--result_dir', default='../data/results',
                                help='the directory to save edu segmentation results')
     path_settings.add_argument('--log_path', help='the file to output log')
+    path_settings.add_argument('--input_conll_path')
     return parser.parse_args()
