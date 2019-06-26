@@ -190,7 +190,7 @@ REMAP = {"-lrb-": "(",
 import re
 def clean(x):
     return re.sub(
-        r"-lrb-|-rrb-|-lcb-|-rcb-|-lsb-|-rsb-|``|''",
+        r"-lrb-|-LRB-|-rrb-|-RRB-|-lcb-|-LCB-|-rcb-|-RCB-|-lsb-|-rsb-|``|''",
         lambda m: REMAP.get(m.group()), x)
 
 def segment_conll(args):
