@@ -15,7 +15,8 @@ class ELMOCRFSegModel(LSTMCRFSegModel):
 
         # import ElmoEmbedder here so that the cuda_visible_divices can work
         from allennlp.commands.elmo import ElmoEmbedder
-        self.elmo = ElmoEmbedder(cuda_device=0 if args.gpu is not None else -1)
+        # self.elmo = ElmoEmbedder(cuda_device=args.gpu if args.gpu is not None else -1)
+        self.elmo = ElmoEmbedder(cuda_device=args.gpu)
 
     def _setup_placeholders(self):
         self.placeholders = {'input_words': tf.placeholder(tf.int32, shape=[None, None]),
