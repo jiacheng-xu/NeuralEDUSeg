@@ -17,6 +17,10 @@ class ELMOCRFSegModel(LSTMCRFSegModel):
         from allennlp.commands.elmo import ElmoEmbedder
         # self.elmo = ElmoEmbedder(cuda_device=args.gpu if args.gpu is not None else -1)
         self.elmo = ElmoEmbedder(cuda_device=args.gpu)
+        if args.gpu<0:
+            self.embed_device = '/cpu:0'
+        else:
+            self.embed_device = '/device:GPU:{}'.format(args.gpu)
 
     def _setup_placeholders(self):
         self.placeholders = {'input_words': tf.placeholder(tf.int32, shape=[None, None]),
@@ -26,7 +30,7 @@ class ELMOCRFSegModel(LSTMCRFSegModel):
                              'dropout_keep_prob': tf.placeholder(tf.float32)}
 
     def _embed(self):
-        with tf.device('/cpu:0'):
+        with tf.device(self.embed_device):
             word_emb_init = tf.constant_initializer(self.word_vocab.embeddings) if self.word_vocab.embeddings is not None \
                 else tf.random_normal_initializer()
             self.word_embeddings = tf.get_variable('word_embeddings',
