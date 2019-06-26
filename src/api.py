@@ -12,7 +12,7 @@ from preprocess import preprocess_rst_data
 from vocab import Vocab
 from rst_edu_reader import RSTData
 from atten_seg import AttnSegModel
-
+import random
 
 def prepare(args):
     logger = logging.getLogger('SegEDU')
@@ -223,7 +223,11 @@ def segment_conll(args):
     todo_files = list(set(files) - set(exist_files))
     logger.info('Segmenting {} files ...'.format(len(todo_files)))
     files = todo_files
+
+    random.shuffle(files)
     for f in files:
+        if os.path.exists(os.path.join(args.output_merge_conll_path, f + '.merge')):
+            continue
         print("running .. {}".format(f))
         with open(os.path.join(args.input_conll_path, f), 'r') as fin:
             lines = fin.read().splitlines()
