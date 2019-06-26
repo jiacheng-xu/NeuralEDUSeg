@@ -17,7 +17,7 @@ class ELMOCRFSegModel(LSTMCRFSegModel):
         from allennlp.commands.elmo import ElmoEmbedder
         # self.elmo = ElmoEmbedder(cuda_device=args.gpu if args.gpu is not None else -1)
         self.elmo = ElmoEmbedder(cuda_device=args.gpu)
-        if args.gpu<0:
+        if args.gpu < 0:
             self.embed_device = '/cpu:0'
         else:
             self.embed_device = '/device:GPU:{}'.format(args.gpu)
@@ -31,7 +31,8 @@ class ELMOCRFSegModel(LSTMCRFSegModel):
 
     def _embed(self):
         with tf.device(self.embed_device):
-            word_emb_init = tf.constant_initializer(self.word_vocab.embeddings) if self.word_vocab.embeddings is not None \
+            word_emb_init = tf.constant_initializer(
+                self.word_vocab.embeddings) if self.word_vocab.embeddings is not None \
                 else tf.random_normal_initializer()
             self.word_embeddings = tf.get_variable('word_embeddings',
                                                    shape=(self.word_vocab.size(), self.word_vocab.embed_dim),
@@ -41,9 +42,9 @@ class ELMOCRFSegModel(LSTMCRFSegModel):
         self.elmo_weights = tf.nn.softmax(tf.get_variable('elmo_weights', [3], dtype=tf.float32, trainable=True))
         self.scale_para = tf.get_variable('scale_para', [1], dtype=tf.float32, trainable=True)
         self.elmo_vectors = self.scale_para * (
-            self.elmo_weights[0] * self.placeholders['elmo_vectors'][:, 0, :, :] +
-            self.elmo_weights[1] * self.placeholders['elmo_vectors'][:, 1, :, :] +
-            self.elmo_weights[2] * self.placeholders['elmo_vectors'][:, 2, :, :]
+                self.elmo_weights[0] * self.placeholders['elmo_vectors'][:, 0, :, :] +
+                self.elmo_weights[1] * self.placeholders['elmo_vectors'][:, 1, :, :] +
+                self.elmo_weights[2] * self.placeholders['elmo_vectors'][:, 2, :, :]
         )
         self.embedded_inputs = tf.concat([self.embedded_words, self.elmo_vectors], -1)
         self.embedded_inputs = tf.nn.dropout(self.embedded_inputs, self.placeholders['dropout_keep_prob'])

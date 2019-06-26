@@ -8,6 +8,16 @@ from lstm_seg import LSTMSegModel
 
 
 class LSTMCRFSegModel(LSTMSegModel):
+    def __init__(self, args, word_vocab):
+        super().__init__(args, word_vocab)
+
+        # import ElmoEmbedder here so that the cuda_visible_divices can work
+        # self.elmo = ElmoEmbedder(cuda_device=args.gpu if args.gpu is not None else -1)
+        if args.gpu < 0:
+            self.embed_device = '/cpu:0'
+        else:
+            self.embed_device = '/device:GPU:{}'.format(args.gpu)
+
 
     def _output(self):
         # self.u = tc.layers.fully_connected(self.encoded_sent, self.hidden_size, tf.nn.relu, scope='output_fc1')
