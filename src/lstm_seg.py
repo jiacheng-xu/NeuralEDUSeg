@@ -35,7 +35,7 @@ class LSTMSegModel(BaseSegModel):
                              'dropout_keep_prob': tf.placeholder(tf.float32)}
 
     def _embed(self):
-        with tf.device('/gpu:0'):
+        with tf.device('/job:localhost/replica:0/task:0/device:XLA_GPU:0'):
             word_emb_init = tf.constant_initializer(self.word_vocab.embeddings) if self.word_vocab.embeddings is not None \
                 else tf.random_normal_initializer()
             self.word_embeddings = tf.get_variable('word_embeddings',
