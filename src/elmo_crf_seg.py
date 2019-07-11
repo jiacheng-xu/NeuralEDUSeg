@@ -17,10 +17,10 @@ class ELMOCRFSegModel(LSTMCRFSegModel):
         from allennlp.commands.elmo import ElmoEmbedder
         # self.elmo = ElmoEmbedder(cuda_device=args.gpu if args.gpu is not None else -1)
         self.elmo = ElmoEmbedder(cuda_device=args.gpu)
-        if args.gpu < 0:
-            self.embed_device = '/cpu:0'
-        else:
-            self.embed_device = '/device:GPU:{}'.format(args.gpu)
+        # if args.gpu < 0:
+        #     self.embed_device = '/cpu:0'
+        # else:
+        #     self.embed_device = '/device:GPU:{}'.format(args.gpu)
 
     def _setup_placeholders(self):
         self.placeholders = {'input_words': tf.placeholder(tf.int32, shape=[None, None]),

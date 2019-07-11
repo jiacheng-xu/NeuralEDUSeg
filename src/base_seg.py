@@ -40,10 +40,10 @@ class BaseSegModel(object):
         self.all_params = tf.trainable_variables()
         param_num = sum([np.prod(self.sess.run(tf.shape(v))) for v in self.all_params])
         self.logger.info('There are {} parameters in the model'.format(param_num))
-        if args.gpu < 0:
-            self.embed_device = '/cpu:0'
-        else:
-            self.embed_device = '/device:GPU:{}'.format(args.gpu)
+        # if args.gpu < 0:
+        #     self.embed_device = '/cpu:0'
+        # else:
+        #     self.embed_device = '/device:GPU:{}'.format(args.gpu)
         if self.use_ema:
             self.logger.info('Using Exp Moving Average to train the model with decay {}.'.format(args.ema_decay))
             self.ema = tf.train.ExponentialMovingAverage(decay=args.ema_decay, num_updates=self.global_step)

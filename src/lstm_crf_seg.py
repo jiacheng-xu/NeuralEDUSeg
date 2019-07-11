@@ -13,10 +13,10 @@ class LSTMCRFSegModel(LSTMSegModel):
 
         # import ElmoEmbedder here so that the cuda_visible_divices can work
         # self.elmo = ElmoEmbedder(cuda_device=args.gpu if args.gpu is not None else -1)
-        if args.gpu < 0:
-            self.embed_device = '/cpu:0'
-        else:
-            self.embed_device = '/device:GPU:{}'.format(args.gpu)
+        # if args.gpu < 0:
+        #     self.embed_device = '/cpu:0'
+        # else:
+        #     self.embed_device = '/device:GPU:{}'.format(args.gpu)
 
 
     def _output(self):
