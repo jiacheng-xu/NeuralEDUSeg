@@ -12,10 +12,10 @@ from layers import self_attention
 class AttnSegModel(ELMOCRFSegModel):
     def __init__(self, args, word_vocab):
         super().__init__(args, word_vocab)
-        if args.gpu < 0:
-            self.embed_device = '/cpu:0'
-        else:
-            self.embed_device = '/device:GPU:{}'.format(args.gpu)
+        # if args.gpu < 0:
+        #     self.embed_device = '/cpu:0'
+        # else:
+        #     self.embed_device = '/device:GPU:{}'.format(args.gpu)
 
     def _encode(self):
         with tf.variable_scope('rnn_1'):

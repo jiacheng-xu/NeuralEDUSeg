@@ -257,6 +257,7 @@ def segment_conll(args):
                 line_anchor.append(lidx)
         if tmp != []:
             sentences.append(tmp)
+            line_tracker.append(line_anchor)
 
         for sent, tmp_line in zip(sentences, line_tracker):
             assert len(tmp_line) == len(sent)
